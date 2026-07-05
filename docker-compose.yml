@@ -1,0 +1,14 @@
+services:
+  bot:
+    build: .
+    image: notification-bot:latest
+    container_name: notification-bot
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      STATE_DIR: /data
+    volumes:
+      - bot-data:/data
+
+volumes:
+  bot-data:
