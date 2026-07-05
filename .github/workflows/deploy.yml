@@ -1,0 +1,39 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build & deploy on server
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            set -euo pipefail
+            cd "${{ secrets.DEPLOY_PATH }}"
+
+            echo "==> Подтягиваем свежий main"
+            git fetch --all --prune
+            git reset --hard origin/main
+
+            echo "==> Пересобираем и поднимаем стек"
+            docker compose up -d --build --remove-orphans
+
+            echo "==> Чистим висящие образы"
+            docker image prune -f
+
+            echo "==> Статус сервисов"
+            docker compose ps

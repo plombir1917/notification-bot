@@ -16,7 +16,11 @@ type Config struct {
 }
 
 // Load считывает конфигурацию из окружения и подставляет значения по умолчанию.
+// Перед чтением подхватывает файл .env из текущего каталога (если он есть),
+// не перезаписывая уже заданные переменные окружения.
 func Load() (*Config, error) {
+	loadDotEnv(".env")
+
 	cfg := &Config{
 		Token:      os.Getenv("BOT_TOKEN"),
 		TZ:         getEnv("TZ", "Europe/Moscow"),

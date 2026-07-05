@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"sync"
 )
@@ -93,7 +94,7 @@ func (s *Store) Subscribers() []int64 {
 	for id := range s.subs {
 		ids = append(ids, id)
 	}
-	sort.Slice(ids, func(i, j int) bool { return ids[i] < ids[j] })
+	slices.Sort(ids)
 	return ids
 }
 
@@ -122,7 +123,7 @@ func (s *Store) persistSubscribers() error {
 	for id := range s.subs {
 		ids = append(ids, id)
 	}
-	sort.Slice(ids, func(i, j int) bool { return ids[i] < ids[j] })
+	slices.Sort(ids)
 	return writeJSON(filepath.Join(s.dir, subscribersFile), subscribersDoc{ChatIDs: ids})
 }
 
