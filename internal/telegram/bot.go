@@ -60,6 +60,7 @@ func New(token string, st *store.Store, cal *calendar.Calendar, loc *time.Locati
 	b.RegisterHandler(bot.HandlerTypeMessageText, "/start", bot.MatchTypePrefix, tb.handleStart)
 	b.RegisterHandler(bot.HandlerTypeMessageText, "/stop", bot.MatchTypePrefix, tb.handleStop)
 	b.RegisterHandler(bot.HandlerTypeMessageText, "/status", bot.MatchTypePrefix, tb.handleStatus)
+	b.RegisterHandler(bot.HandlerTypeMessageText, "/test", bot.MatchTypePrefix, tb.handleTest)
 
 	return tb, nil
 }
@@ -114,6 +115,18 @@ func (tb *Bot) handleStatus(ctx context.Context, b *bot.Bot, update *models.Upda
 	now := time.Now().In(tb.loc)
 	date, action := schedule.NextReminder(now, tb.cal)
 	tb.reply(ctx, update.Message.Chat.ID, statusText(date, action))
+}
+
+// handleTest присылает вызвавшему пример напоминания — для ручной проверки
+// отправки, не дожидаясь запланированной даты.
+func (tb *Bot) handleTest(ctx context.Context, b *bot.Bot, update *models.Update) {
+	if update.Message == nil {
+		return
+	}
+	chatID := update.Message.Chat.ID
+	log.Printf("тестовое напоминание по запросу %d", chatID)
+	tb.reply(ctx, chatID, "🧪 Тестовое сообщение. Так выглядит напоминание:")
+	tb.reply(ctx, chatID, MsgNormal)
 }
 
 func (tb *Bot) handleDefault(ctx context.Context, b *bot.Bot, update *models.Update) {

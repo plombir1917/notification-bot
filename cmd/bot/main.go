@@ -46,7 +46,7 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	svc := reminder.New(tb, st, cal, loc, cfg.RemindHour)
+	svc := reminder.New(tb, st, cal, loc, cfg.RemindHour, cfg.TestDate)
 	go svc.Run(ctx)
 
 	log.Printf("бот запущен (TZ=%s, час напоминаний=%d:00, состояние=%s)", cfg.TZ, cfg.RemindHour, cfg.StateDir)

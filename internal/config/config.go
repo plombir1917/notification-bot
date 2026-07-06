@@ -5,14 +5,16 @@ import (
 	"errors"
 	"os"
 	"strconv"
+	"time"
 )
 
 // Config — настройки приложения.
 type Config struct {
-	Token      string // токен Telegram-бота (@BotFather)
-	TZ         string // имя часового пояса, напр. "Europe/Moscow"
-	RemindHour int    // час отправки напоминаний (0–23), по МСК
-	StateDir   string // каталог для JSON-файлов состояния
+	Token      string    // токен Telegram-бота (@BotFather)
+	TZ         string    // имя часового пояса, напр. "Europe/Moscow"
+	RemindHour int       // час отправки напоминаний (0–23), по МСК
+	StateDir   string    // каталог для JSON-файлов состояния
+	TestDate   time.Time // необязательная тестовая дата: имитировать этот день при старте
 }
 
 // Load считывает конфигурацию из окружения и подставляет значения по умолчанию.
@@ -38,6 +40,14 @@ func Load() (*Config, error) {
 			return nil, errors.New("REMIND_HOUR должен быть числом от 0 до 23")
 		}
 		cfg.RemindHour = h
+	}
+
+	if v := os.Getenv("TEST_DATE"); v != "" {
+		d, err := time.Parse("2006-01-02", v)
+		if err != nil {
+			return nil, errors.New("TEST_DATE должен быть в формате ГГГГ-ММ-ДД, напр. 2026-12-16")
+		}
+		cfg.TestDate = d
 	}
 
 	return cfg, nil
