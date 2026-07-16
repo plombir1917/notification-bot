@@ -34,8 +34,9 @@ func TestDecide2026(t *testing.T) {
 	}{
 		// Январь 2026: 15-е — четверг (рабочий) → напоминание в этот день.
 		{"jan-15-workday", day(msk, 2026, time.January, 15), SendNormal},
-		// Январь: 30-е — пятница (рабочий) → напоминание.
-		{"jan-30-workday", day(msk, 2026, time.January, 30), SendNormal},
+		// Январь: последний рабочий день — 30-е (пятница), т.к. 31-е — суббота.
+		{"jan-30-last-workday", day(msk, 2026, time.January, 30), SendNormal},
+		{"jan-31-saturday-none", day(msk, 2026, time.January, 31), None},
 		// Январь 14-е — не целевой день.
 		{"jan-14-none", day(msk, 2026, time.January, 14), None},
 
@@ -49,15 +50,17 @@ func TestDecide2026(t *testing.T) {
 		// Март 2026: 15-е — воскресенье → перенос на пятницу 13-е.
 		{"mar-15-sunday-none", day(msk, 2026, time.March, 15), None},
 		{"mar-13-friday-shifted", day(msk, 2026, time.March, 13), SendNormal},
-		// Март: 30-е — понедельник (рабочий).
-		{"mar-30-workday", day(msk, 2026, time.March, 30), SendNormal},
+		// Март: последний рабочий день — 31-е (вторник). 30-е — не целевой день.
+		{"mar-30-none", day(msk, 2026, time.March, 30), None},
+		{"mar-31-last-workday", day(msk, 2026, time.March, 31), SendNormal},
 
 		// Август 2026: 15-е — суббота → перенос на пятницу 14-е.
 		{"aug-15-saturday-none", day(msk, 2026, time.August, 15), None},
 		{"aug-14-friday-shifted", day(msk, 2026, time.August, 14), SendNormal},
-		// Август: 30-е — воскресенье → перенос на пятницу 28-е.
+		// Август: последний рабочий день — 31-е (понедельник); 30-е (вс) и 28-е — не целевые.
+		{"aug-28-none", day(msk, 2026, time.August, 28), None},
 		{"aug-30-sunday-none", day(msk, 2026, time.August, 30), None},
-		{"aug-28-friday-shifted", day(msk, 2026, time.August, 28), SendNormal},
+		{"aug-31-last-workday", day(msk, 2026, time.August, 31), SendNormal},
 
 		// Декабрь 2026: 15-е — вторник (рабочий) → обычное напоминание.
 		{"dec-15-normal", day(msk, 2026, time.December, 15), SendNormal},

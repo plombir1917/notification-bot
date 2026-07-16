@@ -34,8 +34,8 @@ func (a Action) String() string {
 // Decide определяет действие на дату today.
 //
 // Правила:
-//   - Обычные месяцы: напоминания на 15-е и на 30-е (или последний день месяца,
-//     если в месяце меньше 30 дней, напр. февраль). Если целевая дата выпадает
+//   - Обычные месяцы: напоминания на 15-е и на последний рабочий день месяца
+//     (30-е, 31-е или последний день февраля). Если целевая дата выпадает
 //     на выходной/праздник — напоминание переносится на ближайший рабочий день ДО.
 //   - Декабрь: 15-е — обычное напоминание (с переносом); строго 16-го числа —
 //     спец-сообщение про финальный табель; второе напоминание (30-е) не шлётся,
@@ -69,14 +69,11 @@ func firstTarget(year int, month time.Month, loc *time.Location, cal *calendar.C
 	return cal.PrevWorkday(dateOf(year, month, 15, loc))
 }
 
-// secondTarget — перенесённая дата второго напоминания (целевое 30-е число
-// либо последний день месяца, если дней меньше 30).
+// secondTarget — дата второго напоминания: последний рабочий день месяца
+// (30-е, 31-е или последний день февраля). Если последний календарный день —
+// выходной/праздник, напоминание переносится назад на ближайший рабочий день.
 func secondTarget(year int, month time.Month, loc *time.Location, cal *calendar.Calendar) time.Time {
-	targetDay := 30
-	if last := lastDayOfMonth(year, month, loc); last.Day() < 30 {
-		targetDay = last.Day()
-	}
-	return cal.PrevWorkday(dateOf(year, month, targetDay, loc))
+	return cal.PrevWorkday(lastDayOfMonth(year, month, loc))
 }
 
 // NextReminder ищет ближайший день (начиная с from), в который будет отправлено
